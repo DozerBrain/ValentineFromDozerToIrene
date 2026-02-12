@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Valentine?</title>
+  <style>
+    :root { --bg:#0b0b12; --card:#141426; --text:#f6f6ff; --muted:#b8b8d6; --yes:#38d39f; --no:#ff5c7a; }
+    * { box-sizing: border-box; }
+    body{
+      margin:0; min-height:100vh; display:grid; place-items:center;
+      background: radial-gradient(1200px 800px at 50% 30%, #1b1b3a 0%, var(--bg) 60%);
+      color:var(--text); font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      overflow:hidden;
+    }
+    .card{
+      width:min(520px, 92vw);
+      background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.02));
+      border:1px solid rgba(255,255,255,.12);
+      border-radius:24px;
+      padding:28px 22px;
+      text-align:center;
+      box-shadow: 0 20px 60px rgba(0,0,0,.45);
+      position:relative;
+      backdrop-filter: blur(10px);
+    }
+    h1{ margin:0 0 10px; font-size: clamp(26px, 4vw, 34px); letter-spacing:.2px; }
+    p{ margin:0 0 18px; color:var(--muted); }
+    .arena{
+      position:relative;
+      width:100%;
+      height: 240px;
+      margin-top:18px;
+      border-radius:18px;
+      border:1px dashed rgba(255,255,255,.14);
+      background: rgba(0,0,0,.18);
+      overflow:hidden;
+    }
+    .btn{
+      position:absolute;
+      padding:14px 18px;
+      border:0;
+      border-radius:14px;
+      font-weight:700;
+      font-size:18px;
+      color:#0b0b12;
+      cursor:pointer;
+      user-select:none;
+      touch-action: manipulation;
+      transform: translate(-50%, -50%);
+      box-shadow: 0 10px 24px rgba(0,0,0,.35);
+    }
+    #yes{
+      background: linear-gradient(180deg, #6bffce, var(--yes));
+      left:35%;
+      top:55%;
+    }
+    #no{
+      background: linear-gradient(180deg, #ffd1da, var(--no));
+      left:65%;
+      top:55%;
+    }
+    .result{
+      margin-top:16px;
+      font-size:18px;
+      display:none;
+    }
+    .result strong{ color: #ff9db0; }
+    .tiny{ font-size:12px; color: rgba(255,255,255,.45); margin-top:10px; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>Will you be my Valentine? 💘</h1>
+    <p>(Choose wisely 😈)</p>
+
+    <div class="arena" id="arena">
+      <button class="btn" id="yes" type="button">Yes 💖</button>
+      <button class="btn" id="no" type="button">No 😶</button>
+    </div>
+
+    <div class="result" id="result">
+      Yessss! 💞 <br/>
+      <span>Now you owe me a hug and a kiss.</span> <br/>
+      <span>(Also… you’re officially my Valentine, <strong>Irene</strong> 😌)</span>
+    </div>
+
+    <div class="tiny">Tip: send as a link or as this HTML file. Works best in Chrome/Safari.</div>
+  </div>
+
+  <script>
+    const arena = document.getElementById('arena');
+    const noBtn = document.getElementById('no');
+    const yesBtn = document.getElementById('yes');
+    const result = document.getElementById('result');
+
+    function clamp(v, min, max){ return Math.min(Math.max(v, min), max); }
+
+    function moveNoButton() {
+      const a = arena.getBoundingClientRect();
+      const b = noBtn.getBoundingClientRect();
+
+      // Keep within arena, with padding so it never goes half off-screen
+      const pad = 16;
+      const minX = pad + b.width / 2;
+      const maxX = a.width - pad - b.width / 2;
+      const minY = pad + b.height / 2;
+      const maxY = a.height - pad - b.height / 2;
+
+      // Random position
+      let x = Math.random() * (maxX - minX) + minX;
+      let y = Math.random() * (maxY - minY) + minY;
+
+      // If it lands too close to the Yes button, re-roll once
+      const yesRect = yesBtn.getBoundingClientRect();
+      const noRect = { width: b.width, height: b.height };
+      const yesCenterX = (yesRect.left - a.left) + yesRect.width / 2;
+      const yesCenterY = (yesRect.top - a.top) + yesRect.height / 2;
+
+      const dx = x - yesCenterX;
+      const dy = y - yesCenterY;
+      const dist = Math.hypot(dx, dy);
+
+      if (dist < 90) {
+        x = clamp(x + (dx >= 0 ? 110 : -110), minX, maxX);
+        y = clamp(y + (dy >= 0 ? 80 : -80), minY, maxY);
+      }
+
+      noBtn.style.left = x + "px";
+      noBtn.style.top = y + "px";
+    }
+
+    // Make "No" run away on hover (desktop) and on touch/click attempt (mobile)
+    noBtn.addEventListener('mouseenter', moveNoButton);
+    noBtn.addEventListener('pointerdown', (e) => {
+      // Prevent accidental click; move immediately
+      e.preventDefault();
+      moveNoButton();
+    });
+
+    // If somehow clicked, still move it
+    noBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      moveNoButton();
+    });
+
+    yesBtn.addEventListener('click', () => {
+      result.style.display = 'block';
+      // Optional: disable No once Yes is chosen
+      noBtn.disabled = true;
+      noBtn.style.opacity = 0.35;
+      noBtn.style.cursor = 'not-allowed';
+      yesBtn.style.transform = 'translate(-50%, -50%) scale(1.05)';
+    });
+
+    // Ensure positions are correct after resize/orientation changes
+    window.addEventListener('resize', () => {
+      // keep no button inside bounds
+      moveNoButton();
+    });
+  </script>
+</body>
+</html>
