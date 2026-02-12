@@ -26,6 +26,7 @@
     }
     h1{ margin:0 0 10px; font-size: clamp(26px, 4vw, 34px); letter-spacing:.2px; }
     p{ margin:0 0 18px; color:var(--muted); }
+
     .arena{
       position:relative;
       width:100%;
@@ -36,6 +37,7 @@
       background: rgba(0,0,0,.18);
       overflow:hidden;
     }
+
     .btn{
       position:absolute;
       padding:14px 18px;
@@ -60,12 +62,38 @@
       left:65%;
       top:55%;
     }
+
     .result{
       margin-top:16px;
-      font-size:18px;
       display:none;
+      opacity:0;
+      transform: translateY(6px);
+      transition: opacity 420ms ease, transform 420ms ease;
+      text-align:left;
+      background: rgba(0,0,0,.18);
+      border:1px solid rgba(255,255,255,.10);
+      border-radius:18px;
+      padding:18px 16px;
+      line-height:1.7;
+    }
+    .result.show{
+      display:block;
+      opacity:1;
+      transform: translateY(0);
+    }
+    .result h2{
+      margin:0 0 10px;
+      font-size:22px;
+      text-align:center;
+    }
+    .result .sig{
+      margin-top:14px;
+      text-align:right;
+      color: rgba(255,255,255,.85);
+      font-weight:700;
     }
     .result strong{ color: #ff9db0; }
+
     .tiny{ font-size:12px; color: rgba(255,255,255,.45); margin-top:10px; }
   </style>
 </head>
@@ -79,13 +107,35 @@
       <button class="btn" id="no" type="button">No 😶</button>
     </div>
 
-    <div class="result" id="result">
-      Yessss! 💞 <br/>
-      <span>Now you owe me a hug and a kiss.</span> <br/>
-      <span>(Also… you’re officially my Valentine, <strong>Irene</strong> 😌)</span>
+    <!-- Love Letter -->
+    <div class="result" id="result" aria-live="polite">
+      <h2>Irene… you said YES 💖</h2>
+
+      <div style="font-size:16px; color:#f6f6ff;">
+        Irene,<br><br>
+
+        I want you to know something simple and true:
+        <strong>I choose you.</strong> Not just for Valentine’s Day — for every day I get to live.
+        <br><br>
+
+        You bring peace to my mind and warmth to my heart.
+        When I think about the future, the version that feels right always has you in it.
+        <br><br>
+
+        Thank you, Irene, for your love, your patience, and for standing beside me.
+        You make me want to be better — not because you demand it, but because you inspire it.
+        <br><br>
+
+        I love you more than I can explain.
+        <br><br>
+
+        <strong>Happy Valentine’s Day, my love. 💘</strong>
+
+        <div class="sig">— Dozer</div>
+      </div>
     </div>
 
-    <div class="tiny">Tip: send as a link or as this HTML file. Works best in Chrome/Safari.</div>
+    <div class="tiny">Tip: send as a link. Works best in Chrome/Safari.</div>
   </div>
 
   <script>
@@ -113,7 +163,6 @@
 
       // If it lands too close to the Yes button, re-roll once
       const yesRect = yesBtn.getBoundingClientRect();
-      const noRect = { width: b.width, height: b.height };
       const yesCenterX = (yesRect.left - a.left) + yesRect.width / 2;
       const yesCenterY = (yesRect.top - a.top) + yesRect.height / 2;
 
@@ -133,30 +182,26 @@
     // Make "No" run away on hover (desktop) and on touch/click attempt (mobile)
     noBtn.addEventListener('mouseenter', moveNoButton);
     noBtn.addEventListener('pointerdown', (e) => {
-      // Prevent accidental click; move immediately
       e.preventDefault();
       moveNoButton();
     });
-
-    // If somehow clicked, still move it
     noBtn.addEventListener('click', (e) => {
       e.preventDefault();
       moveNoButton();
     });
 
     yesBtn.addEventListener('click', () => {
-      result.style.display = 'block';
-      // Optional: disable No once Yes is chosen
-      noBtn.disabled = true;
-      noBtn.style.opacity = 0.35;
-      noBtn.style.cursor = 'not-allowed';
-      yesBtn.style.transform = 'translate(-50%, -50%) scale(1.05)';
+      // Hide the arena (buttons) and show the letter
+      arena.style.display = 'none';
+      result.classList.add('show');
+
+      // If user scrolls (small screens), ensure letter is visible
+      result.scrollIntoView({ behavior: "smooth", block: "start" });
     });
 
     // Ensure positions are correct after resize/orientation changes
     window.addEventListener('resize', () => {
-      // keep no button inside bounds
-      moveNoButton();
+      if (arena.style.display !== 'none') moveNoButton();
     });
   </script>
 </body>
